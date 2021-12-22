@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from random import choice, randint, shuffle
+import json
 
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
@@ -27,20 +28,28 @@ def save():
     website = txt_website.get()
     username = txt_username.get()
     password = txt_password.get()
+    new_data = {
+        website : {
+            "email": username,
+            "password" : password
+        }
+    }
 
-    if len(username) == 0 or len(website) == 0 or len(password) == 0:
+    if len(website) == 0 or len(password) == 0:
         messagebox.showerror(title="Invalid info", message="Something does not seem right with your entries. Please"
                                                            "make sure you haven't left anything empty")
     else:
-        is_ok = messagebox.askokcancel(title=website, message=f"These are the details entered: \n {website} \n{username}"
-                                                              f" \n{password}\n is it okay to save")
-        if is_ok:
-            with open("data.txt", "a") as data_file:
-                data_file.write(f"{website} | {username} | {password} \n")
-
-        txt_website.delete(0, END)
-        txt_username.delete(0, END)
-        txt_password.delete(0, END)
+        with open("data.json", "r") as data_file:
+            # Reading old data
+            data = json.load(data_file)
+            # Updating old data with new data
+            data.update(new_data)
+            
+        # Save updated data
+        with open("data.json", "w") as data_file:
+            json.dump(data, data_file, indent=4)
+            txt_website.delete(0, END)
+            txt_password.delete(0, END)
 
 
 # ---------------------------- UI SETUP ------------------------------- #
@@ -67,6 +76,7 @@ txt_website = Entry(width=35)
 txt_website.grid(row=1, column=1, columnspan=2)
 txt_website.focus()
 txt_username = Entry(width=35)
+txt_username.insert(0, "username@mail.com")
 txt_username.grid(row=2, column=1, columnspan=2)
 txt_password = Entry(width=21)
 txt_password.grid(row=3, column=1)
